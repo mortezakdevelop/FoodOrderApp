@@ -12,12 +12,14 @@ import com.morteza.foodorderapplication.models.RegisterStoredModel
 import com.morteza.foodorderapplication.network.ApiServices
 import com.morteza.foodorderapplication.utils.Constants
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
 
+@ActivityRetainedScoped
 class RegisterRepository @Inject constructor(
     @ApplicationContext private val context:Context,
     private val apiService:ApiServices
