@@ -54,6 +54,9 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
 
+    //bottomNavigation
+    implementation 'com.github.ibrahimsn98:SmoothBottomBar:1.7.9'
+
     //Dagger - Hilt
     implementation 'com.google.dagger:hilt-android:2.44'
     kapt 'com.google.dagger:hilt-compiler:2.44'
