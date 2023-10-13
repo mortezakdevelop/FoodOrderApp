@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.view.menu.ActionMenuItemView
+import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
@@ -32,9 +33,31 @@ class MainActivity : AppCompatActivity() {
         navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         binding.mainBottomNav.setupWithNavController(navHost.navController)
 
+
+        navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.splashFragment -> visibilityBottomMenu(false)
+                R.id.registerFragment -> visibilityBottomMenu(false)
+//                R.id.detailFragment -> visibilityBottomMenu(false)
+//                R.id.webViewFragment -> visibilityBottomMenu(false)
+                else -> visibilityBottomMenu(true)
+            }
+        }
     }
 
-    override fun onNavigateUp(): Boolean {
-        return navHost.navController.navigateUp() || super.onNavigateUp()
+        private fun visibilityBottomMenu(isVisibility: Boolean) {
+            binding.apply {
+                if (isVisibility) {
+                    mainBottomAppbar.isVisible = true
+                    mainFabMenu.isVisible = true
+                } else {
+                    mainBottomAppbar.isVisible = false
+                    mainFabMenu.isVisible = false
+                }
+            }
+        }
+
+        override fun onNavigateUp(): Boolean {
+            return navHost.navController.navigateUp() || super.onNavigateUp()
+        }
     }
-}
