@@ -2,6 +2,7 @@ package com.morteza.foodorderapplication.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.request.CachePolicy
@@ -9,6 +10,7 @@ import com.morteza.foodorderapplication.R
 import com.morteza.foodorderapplication.databinding.ItemPopularBinding
 import javax.inject.Inject
 import com.morteza.foodorderapplication.models.ResponseRecipes.Result
+import com.morteza.foodorderapplication.utils.BaseDiffUtils
 import com.morteza.foodorderapplication.utils.Constants
 
 
@@ -44,6 +46,10 @@ class PopularAdapter @Inject constructor():RecyclerView.Adapter<PopularAdapter.V
 
     private var onItemClickListener: ((Int) -> Unit)? = null
 
+    fun setOnItemClickListener(listener: (Int) -> Unit) {
+        onItemClickListener = listener
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         binding = ItemPopularBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -56,5 +62,12 @@ class PopularAdapter @Inject constructor():RecyclerView.Adapter<PopularAdapter.V
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         return holder.bind(items[position])
+    }
+
+    fun setData(data: List<Result>) {
+        val adapterDiffUtils = BaseDiffUtils(items, data)
+        val diffUtils = DiffUtil.calculateDiff(adapterDiffUtils)
+        items = data
+        diffUtils.dispatchUpdatesTo(this)
     }
 }

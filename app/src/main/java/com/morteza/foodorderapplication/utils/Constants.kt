@@ -6,7 +6,7 @@ object Constants {
     const val BASE_URL_IMAGE_RECIPE = "https://spoonacular.com/recipeImages/"
     const val CONNECTION_TIME = 60L
 
-    const val MY_API_KEY = "0dd72edcd6594da9a4ac5b71a2122caf"
+    const val MY_API_KEY = "03573bc48ac34b99bc9c09c84a1931d1"
 
     //APIs key
     const val API_KEY = "apiKey"
