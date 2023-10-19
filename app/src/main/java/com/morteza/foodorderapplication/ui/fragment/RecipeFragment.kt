@@ -2,30 +2,29 @@ package com.morteza.foodorderapplication.ui.fragment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.morteza.foodorderapplication.R
 import com.morteza.foodorderapplication.adapter.PopularAdapter
+import com.morteza.foodorderapplication.adapter.RecentAdapter
 import com.morteza.foodorderapplication.databinding.FragmentRecipeBinding
 import com.morteza.foodorderapplication.models.ResponseRecipes
 import com.morteza.foodorderapplication.utils.Constants
 import com.morteza.foodorderapplication.utils.NetworkRequest
-import com.morteza.foodorderapplication.utils.NetworkResponse
 import com.morteza.foodorderapplication.utils.setupRecyclerview
 import com.morteza.foodorderapplication.utils.showSnackBar
-import com.morteza.foodorderapplication.utils.showToast
 import com.morteza.foodorderapplication.viewmodel.RecipeViewModel
 import com.morteza.foodorderapplication.viewmodel.RegisterViewModel
 import com.todkars.shimmer.ShimmerRecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -36,10 +35,16 @@ class RecipeFragment : Fragment() {
 
     @Inject
     lateinit var popularAdapter:PopularAdapter
+
+    @Inject
+    lateinit var recentAdapter: RecentAdapter
     private var autoScrollIndex = 0
 
 
+
     private val registerViewModel: RegisterViewModel by viewModels()
+
+    private val args:RecipeFragmentArgs by navArgs()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -55,7 +60,9 @@ class RecipeFragment : Fragment() {
             showUserName()
         }
         loadPopularData()
+        loadRecentData()
         callPopularData()
+        callRecentData()
     }
 
     @SuppressLint("SetTextI18n")
@@ -144,6 +151,58 @@ class RecipeFragment : Fragment() {
     private fun setupLoading(isShownLoading: Boolean, shimmer: ShimmerRecyclerView) {
         shimmer.apply {
             if (isShownLoading) showShimmer() else hideShimmer()
+        }
+    }
+
+    //recent
+
+    private fun callRecentData() {
+        initRecentRecycler()
+        viewModel.readRecentFromDb.observe(viewLifecycleOwner) { database ->
+            if (database.isNotEmpty() && database.size > 1 && !args.isUpdateData) {
+                database[1].response.results?.let { result ->
+                    setupLoading(false, binding.recipesList)
+                    recentAdapter.setData(result)
+                }
+            } else {
+                viewModel.callRecentApi(viewModel.recentQueries())
+            }
+        }
+    }
+    private fun loadRecentData() {
+        initRecentRecycler()
+        viewModel.callRecentApi(viewModel.recentQueries())
+        binding.apply {
+            viewModel.recentData.observe(viewLifecycleOwner) { response ->
+                when (response) {
+                    is NetworkRequest.Loading -> {
+                        setupLoading(true, recipesList)
+                    }
+                    is NetworkRequest.Success -> {
+                        setupLoading(false, recipesList)
+                        response.data?.let { data ->
+                            if (data.results!!.isNotEmpty()) {
+                                recentAdapter.setData(data.results)
+                            }
+                        }
+                    }
+                    is NetworkRequest.Error -> {
+                        setupLoading(false, recipesList)
+                        binding.root.showSnackBar(response.message!!)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun initRecentRecycler() {
+        binding.recipesList.setupRecyclerview(
+            LinearLayoutManager(requireContext()),
+            recentAdapter
+        )
+        //Click
+        recentAdapter.setOnItemClickListener {
+           // gotoDetailPage(it)
         }
     }
 }
